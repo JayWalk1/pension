@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pension vs Bitcoin Performance Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Pension vs Bitcoin Performance Calculator</h1>
+        <form id="investment-form">
+            <label for="initial-amount">Initial Investment Amount (£):</label>
+            <input type="number" id="initial-amount" required>
+            
+            <label for="start-date">Investment Start Date:</label>
+            <input type="date" id="start-date" required>
+            
+            <label for="end-date">Investment End Date:</label>
+            <input type="date" id="end-date" required>
+            
+            <button type="submit">Calculate</button>
+        </form>
+        
+        <div id="results" class="results">
+            <h2>Results</h2>
+            <p id="pension-result"></p>
+            <p id="bitcoin-result"></p>
+            <p id="comparison-summary"></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
