@@ -60,3 +60,4 @@ async function calculateBitcoin() {
         If you invested it in ${bitcoinSymbol}: ${totalBitcoin.toFixed(6)} ${bitcoinSymbol} worth approximately ${currencySymbols[currency]}${totalValue.toLocaleString()} today.
     `;
 }
+
