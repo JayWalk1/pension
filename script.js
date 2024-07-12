@@ -18,13 +18,22 @@ function calculateBitcoin() {
     const totalMonths = (currentDate.getFullYear() - startDate.getFullYear()) * 12 + (currentDate.getMonth() - startDate.getMonth());
     const totalSpent = monthlyContribution * totalMonths;
 
+    console.log(`Total Months: ${totalMonths}, Total Spent: ${totalSpent}`); // Debugging
+
     // Fetch historical Bitcoin prices and calculate accumulated Bitcoin
     fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?currency=${currency}&start=${startDate.toISOString().split('T')[0]}&end=${currentDate.toISOString().split('T')[0]}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
         .then(data => {
             const prices = data.bpi;
             let totalBitcoin = 0;
             const monthlySpend = monthlyContribution;
+
+            console.log('Fetched Historical Prices:', prices); // Debugging
 
             // Loop through each month from the start date to the end date
             let dateIterator = new Date(startDate);
@@ -32,6 +41,7 @@ function calculateBitcoin() {
                 let dateString = dateIterator.toISOString().split('T')[0];
                 if (prices[dateString]) {
                     totalBitcoin += monthlySpend / prices[dateString];
+                    console.log(`Date: ${dateString}, Price: ${prices[dateString]}, Total Bitcoin: ${totalBitcoin}`); // Debugging
                 }
                 // Move to the next month
                 dateIterator.setMonth(dateIterator.getMonth() + 1);
@@ -48,4 +58,6 @@ function calculateBitcoin() {
         })
         .catch(error => {
             console.error('Error fetching historical Bitcoin prices:', error);
-            document.getElementById('result').innerT
+            document.getElementById('result').innerText = "Error fetching Bitcoin prices.";
+        });
+}
