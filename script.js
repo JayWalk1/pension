@@ -31,17 +31,15 @@ function calculateBitcoin() {
         .then(data => {
             const prices = data.bpi;
             let totalBitcoin = 0;
-            const monthlySpend = monthlyContribution;
-
-            console.log('Fetched Historical Prices:', prices); // Debugging
 
             // Loop through each month from the start date to the end date
             let dateIterator = new Date(startDate);
             while (dateIterator <= currentDate) {
                 let dateString = dateIterator.toISOString().split('T')[0];
                 if (prices[dateString]) {
-                    totalBitcoin += monthlySpend / prices[dateString];
-                    console.log(`Date: ${dateString}, Price: ${prices[dateString]}, Total Bitcoin: ${totalBitcoin}`); // Debugging
+                    const monthlySpend = monthlyContribution / prices[dateString];
+                    totalBitcoin += monthlySpend;
+                    console.log(`Date: ${dateString}, Price: ${prices[dateString]}, Bitcoin Bought: ${monthlySpend}, Total Bitcoin: ${totalBitcoin}`); // Debugging
                 }
                 // Move to the next month
                 dateIterator.setMonth(dateIterator.getMonth() + 1);
