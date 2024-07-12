@@ -1,74 +1,51 @@
-document.getElementById('investment-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const initialAmount = parseFloat(document.getElementById('initial-amount').value);
+function calculateBitcoin() {
+    const monthlyContribution = parseFloat(document.getElementById('monthly-contribution').value);
     const startDate = new Date(document.getElementById('start-date').value);
-    const endDate = new Date(document.getElementById('end-date').value);
+    const currency = document.getElementById('currency').value;
+    const currencySymbols = {
+        'USD': '$',
+        'GBP': '£',
+        'EUR': '€'
+    };
+    const bitcoinSymbol = '₿';
 
-    if (isNaN(initialAmount) || initialAmount <= 0) {
-        alert('Please enter a valid initial investment amount.');
+    if (isNaN(monthlyContribution) || isNaN(startDate.getTime()) || monthlyContribution <= 0) {
+        document.getElementById('result').innerText = "Please enter valid values.";
         return;
     }
-    
-    if (startDate >= endDate) {
-        alert('End date must be later than start date.');
-        return;
-    }
 
-    // Average annual return rate for UK pensions (fixed assumption)
-    const pensionAnnualReturnRate = 0.06;
+    const currentDate = new Date();
+    const totalMonths = (currentDate.getFullYear() - startDate.getFullYear()) * 12 + (currentDate.getMonth() - startDate.getMonth());
+    const totalSpent = monthlyContribution * totalMonths;
 
-    calculatePensionGrowth(initialAmount, startDate, endDate, pensionAnnualReturnRate);
-    fetchBitcoinData(initialAmount, startDate, endDate);
-});
-
-function calculatePensionGrowth(initialAmount, startDate, endDate, annualReturnRate) {
-    const years = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
-    const finalAmount = initialAmount * Math.pow(1 + annualReturnRate, years);
-
-    document.getElementById('pension-result').textContent = `Final value in UK pension: £${finalAmount.toFixed(2)}`;
-}
-
-function fetchBitcoinData(initialAmount, startDate, endDate) {
-    const startTimestamp = Math.floor(startDate.getTime() / 1000);
-    const endTimestamp = Math.floor(endDate.getTime() / 1000);
-
-    const url = `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=gbp&from=${startTimestamp}&to=${endTimestamp}`;
-
-    fetch(url)
+    // Fetch historical Bitcoin prices and calculate accumulated Bitcoin
+    fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?currency=${currency}&start=${startDate.toISOString().split('T')[0]}&end=${currentDate.toISOString().split('T')[0]}`)
         .then(response => response.json())
-        .then(data => calculateBitcoinGrowth(initialAmount, data.prices, startDate, endDate))
+        .then(data => {
+            const prices = data.bpi;
+            let totalBitcoin = 0;
+            const monthlySpend = monthlyContribution;
+
+            // Loop through each month from the start date to the end date
+            let dateIterator = new Date(startDate);
+            while (dateIterator <= currentDate) {
+                let dateString = dateIterator.toISOString().split('T')[0];
+                if (prices[dateString]) {
+                    totalBitcoin += monthlySpend / prices[dateString];
+                }
+                // Move to the next month
+                dateIterator.setMonth(dateIterator.getMonth() + 1);
+            }
+
+            const lastDate = Object.keys(prices).pop();
+            const lastPrice = prices[lastDate];
+            const totalValue = totalBitcoin * lastPrice;
+
+            document.getElementById('result').innerHTML = `
+                You spent this much on your pension: ${currencySymbols[currency]}${totalSpent.toLocaleString()}<br>
+                If you invested it in ${bitcoinSymbol}: ${totalBitcoin.toFixed(6)} ${bitcoinSymbol} worth approximately ${currencySymbols[currency]}${totalValue.toLocaleString()} today.
+            `;
+        })
         .catch(error => {
-            console.error('Error fetching Bitcoin data:', error);
-            alert('Failed to fetch Bitcoin data. Please try again later.');
-        });
-}
-
-function calculateBitcoinGrowth(initialAmount, prices, startDate, endDate) {
-    const startPrice = prices[0][1];
-    const endPrice = prices[prices.length - 1][1];
-
-    const growthFactor = endPrice / startPrice;
-    const finalAmount = initialAmount * growthFactor;
-
-    document.getElementById('bitcoin-result').textContent = `Final value in Bitcoin: £${finalAmount.toFixed(2)}`;
-
-    compareInvestments(finalAmount, startDate, endDate);
-}
-
-function compareInvestments(bitcoinFinalAmount, startDate, endDate) {
-    const pensionResultText = document.getElementById('pension-result').textContent;
-    const pensionFinalAmount = parseFloat(pensionResultText.match(/£([\d,.]+)/)[1].replace(/,/g, ''));
-
-    let comparisonSummary;
-
-    if (bitcoinFinalAmount > pensionFinalAmount) {
-        comparisonSummary = `Bitcoin outperformed the UK pension by £${(bitcoinFinalAmount - pensionFinalAmount).toFixed(2)} over the given period.`;
-    } else if (bitcoinFinalAmount < pensionFinalAmount) {
-        comparisonSummary = `The UK pension outperformed Bitcoin by £${(pensionFinalAmount - bitcoinFinalAmount).toFixed(2)} over the given period.`;
-    } else {
-        comparisonSummary = 'Both investments performed equally over the given period.';
-    }
-
-    document.getElementById('comparison-summary').textContent = comparisonSummary;
-}
+            console.error('Error fetching historical Bitcoin prices:', error);
+            document.getElementById('result').innerT
