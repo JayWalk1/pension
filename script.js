@@ -13,7 +13,7 @@ async function fetchHistoricalPrice(date, apiKey) {
 }
 
 async function calculateBitcoin() {
-    const apiKey = 'TELDEHV3SJEBW6IH';  // Your Alpha Vantage API key
+    const apiKey = 'XMXBSFCDTCOFW7TC';  // Your Alpha Vantage API key
     const monthlyContribution = parseFloat(document.getElementById('monthly-contribution').value);
     const startDate = new Date(document.getElementById('start-date').value);
     const currency = document.getElementById('currency').value;
