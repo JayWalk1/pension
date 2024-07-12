@@ -1,6 +1,6 @@
 async function fetchHistoricalPrice(date, apiKey) {
-    const formattedDate = date.toISOString().split('T')[0];
-    const response = await fetch(`https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=BTC&market=USD&apikey=${apiKey}`);
+    const formattedDate = date.toISOString().split('T')[0].replace(/-/g, '');
+    const response = await fetch(`https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=BTC&market=USD&entitlement=delayed&apikey=${apiKey}`);
     if (!response.ok) {
         throw new Error('Network response was not ok ' + response.statusText);
     }
@@ -13,7 +13,7 @@ async function fetchHistoricalPrice(date, apiKey) {
 }
 
 async function calculateBitcoin() {
-    const apiKey = 'XMXBSFCDTCOFW7TC';  // Your Alpha Vantage API key
+    const apiKey = 'TELDEHV3SJEBW6IH';  // Your Alpha Vantage API key
     const monthlyContribution = parseFloat(document.getElementById('monthly-contribution').value);
     const startDate = new Date(document.getElementById('start-date').value);
     const currency = document.getElementById('currency').value;
