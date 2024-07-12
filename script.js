@@ -1,14 +1,19 @@
-async function fetchHistoricalPrice(date) {
+async function fetchHistoricalPrice(date, apiKey) {
     const formattedDate = date.toISOString().split('T')[0];
-    const response = await fetch(`https://api.coingecko.com/api/v3/coins/bitcoin/history?date=${formattedDate}`);
+    const response = await fetch(`https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=BTC&market=USD&apikey=${apiKey}`);
     if (!response.ok) {
         throw new Error('Network response was not ok ' + response.statusText);
     }
     const data = await response.json();
-    return data.market_data.current_price.usd;
+    const priceData = data['Time Series (Digital Currency Daily)'][formattedDate];
+    if (!priceData) {
+        throw new Error('Price data not available for date: ' + formattedDate);
+    }
+    return parseFloat(priceData['4b. close (USD)']);
 }
 
 async function calculateBitcoin() {
+    const apiKey = 'TELDEHV3SJEBW6IH';  // Your Alpha Vantage API key
     const monthlyContribution = parseFloat(document.getElementById('monthly-contribution').value);
     const startDate = new Date(document.getElementById('start-date').value);
     const currency = document.getElementById('currency').value;
@@ -34,7 +39,7 @@ async function calculateBitcoin() {
     let dateIterator = new Date(startDate);
     while (dateIterator <= currentDate) {
         try {
-            const price = await fetchHistoricalPrice(dateIterator);
+            const price = await fetchHistoricalPrice(dateIterator, apiKey);
             const monthlySpend = monthlyContribution / price;
             totalBitcoin += monthlySpend;
             console.log(`Date: ${dateIterator.toISOString().split('T')[0]}, Price: ${price}, Bitcoin Bought: ${monthlySpend}, Total Bitcoin: ${totalBitcoin}`); // Debugging
@@ -47,7 +52,7 @@ async function calculateBitcoin() {
         dateIterator.setMonth(dateIterator.getMonth() + 1);
     }
 
-    const lastPrice = await fetchHistoricalPrice(currentDate);
+    const lastPrice = await fetchHistoricalPrice(currentDate, apiKey);
     const totalValue = totalBitcoin * lastPrice;
 
     document.getElementById('result').innerHTML = `
