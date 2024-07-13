@@ -12,6 +12,10 @@ const bitcoinPricesGBP = {
     '2024-01': 31219.78, '2024-02': 32222.34, '2024-03': 33225.47, '2024-04': 34228.56, '2024-05': 35231.67, '2024-06': 36234.89, '2024-07': 37237.54
 };
 
+const pensionGrowthRates = {
+    '2014': 5.0, '2015': 2.5, '2016': 6.0, '2017': 8.0, '2018': 3.5, '2019': 7.0, '2020': 9.0, '2021': 10.0, '2022': -5.0, '2023': 6.0, '2024': 4.0
+};
+
 function calculateBitcoin() {
     const monthlyContribution = parseFloat(document.getElementById('monthly-contribution').value);
     const startDate = new Date(document.getElementById('start-date').value);
@@ -32,7 +36,7 @@ function calculateBitcoin() {
 
     let totalBitcoin = 0;
 
-    // Loop through each month from the start date to the end date
+    // Calculate total Bitcoin accumulated
     let dateIterator = new Date(startDate);
     while (dateIterator <= currentDate) {
         const monthKey = `${dateIterator.getFullYear()}-${String(dateIterator.getMonth() + 1).padStart(2, '0')}`;
@@ -40,13 +44,10 @@ function calculateBitcoin() {
         if (price) {
             const monthlySpend = monthlyContribution / price;
             totalBitcoin += monthlySpend;
-            console.log(`Date: ${monthKey}, Price: ${price}, Bitcoin Bought: ${monthlySpend}, Total Bitcoin: ${totalBitcoin}`); // Debugging
         } else {
-            console.error(`Price data not available for date: ${monthKey}`);
             document.getElementById('result').innerText = "Error fetching Bitcoin prices.";
             return;
         }
-        // Move to the next month
         dateIterator.setMonth(dateIterator.getMonth() + 1);
     }
 
@@ -54,8 +55,18 @@ function calculateBitcoin() {
     const lastPrice = bitcoinPricesGBP[lastMonthKey];
     const totalValue = totalBitcoin * lastPrice;
 
+    // Calculate pension value
+    let totalPensionValue = totalSpent;
+    for (let year = startDate.getFullYear(); year <= currentDate.getFullYear(); year++) {
+        const growthRate = pensionGrowthRates[year];
+        if (growthRate !== undefined) {
+            totalPensionValue *= 1 + (growthRate / 100);
+        }
+    }
+
     document.getElementById('result').innerHTML = `
         You contributed: ${currencySymbols[currency]}${totalSpent.toLocaleString()}<br>
-        If you invested in Bitcoin: ${bitcoinSymbol}${totalBitcoin.toFixed(6)} worth approximately ${currencySymbols[currency]}${totalValue.toLocaleString()}
+        If you invested in Bitcoin: ${bitcoinSymbol}${totalBitcoin.toFixed(6)} worth approximately ${currencySymbols[currency]}${totalValue.toLocaleString()}<br>
+        Average pension value: ${currencySymbols[currency]}${totalPensionValue.toLocaleString()}
     `;
 }
