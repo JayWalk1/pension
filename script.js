@@ -55,7 +55,7 @@ function calculateBitcoin() {
     const totalValue = totalBitcoin * lastPrice;
 
     document.getElementById('result').innerHTML = `
-        You spent this much on your pension: ${currencySymbols[currency]}${totalSpent.toLocaleString()}<br>
-        If you invested it in ${bitcoinSymbol}: ${totalBitcoin.toFixed(6)} ${bitcoinSymbol} worth approximately ${currencySymbols[currency]}${totalValue.toLocaleString()} today.
+        You contributed: ${currencySymbols[currency]}${totalSpent.toLocaleString()}<br>
+        If you invested in Bitcoin: ${bitcoinSymbol}${totalBitcoin.toFixed(6)} worth approximately ${currencySymbols[currency]}${totalValue.toLocaleString()}
     `;
 }
